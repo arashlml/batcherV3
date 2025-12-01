@@ -10,7 +10,7 @@ import (
 // ------------------------------
 
 func TestBatcher_FlushBySize(t *testing.T) {
-	b := NewBatcher[int](3, time.Second)
+	b := NewBatcher[int](3, time.Second,0)
 
 	b.Add(1)
 	b.Add(2)
@@ -36,7 +36,7 @@ func TestBatcher_FlushBySize(t *testing.T) {
 // ------------------------------
 
 func TestBatcher_FlushByTime(t *testing.T) {
-	b := NewBatcher[int](10, 200*time.Millisecond)
+	b := NewBatcher[int](10, 200*time.,0)
 
 	b.Add(10)
 	b.Add(20)
@@ -58,7 +58,7 @@ func TestBatcher_FlushByTime(t *testing.T) {
 // ------------------------------
 
 func TestBatcher_CloseFlushesRemaining(t *testing.T) {
-	b := NewBatcher[int](10, time.Second)
+	b := NewBatcher[int](10, time.Second,0)
 
 	b.Add(100)
 	b.Add(200)
@@ -80,7 +80,7 @@ func TestBatcher_CloseFlushesRemaining(t *testing.T) {
 // ------------------------------
 
 func TestBatcher_MultipleFlushes(t *testing.T) {
-	b := NewBatcher[int](2, time.Second)
+	b := NewBatcher[int](2, time.Second,0)
 
 	b.Add(1)
 	b.Add(2)
