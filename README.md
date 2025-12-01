@@ -23,7 +23,7 @@ BatcherV3 is a high-performance, generic, and thread-safe batch processor writte
 Using `go get`:
 
 ```bash
-go get github.com/arashlml/batcher
+go get github.com/arashlml/batcherV3
 ```
 
 Or manually import the package:
