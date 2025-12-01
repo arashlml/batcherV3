@@ -21,10 +21,10 @@ type Batcher[T any] struct {
 	flushCounter int64
 }
 
-func NewBatcher[T any](maxSize int, interval time.Duration) *Batcher[T] {
+func NewBatcher[T any](maxSize int, interval time.Duration, maxChanSize int) *Batcher[T] {
 	log.Println("BATCHER: MAKING THE BATCHER")
 	b := &Batcher[T]{
-		itemsCh:  make(chan T, 1000),
+		itemsCh:  make(chan T, maxChanSize),
 		batch:    make([]T, 0, maxSize),
 		maxSize:  maxSize,
 		interval: interval,
