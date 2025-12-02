@@ -29,7 +29,7 @@ func NewBatcher[T any](maxSize int, interval time.Duration, maxChanSize int) *Ba
 		maxSize:  maxSize,
 		interval: interval,
 		quit:     make(chan struct{}),
-		outChan:  make(chan []T, 100),
+		outChan:  make(chan []T, maxChanSize),
 	}
 	log.Printf("🚀 Batcher Initialized Successfully\n\nReady to collect, batch, and flush your data with:\n- ⏱ Time-based batching\n- 📦 Size-based flushing\n- ⚡ High-throughput processing\n\nLet the batching begin.\n")
 	go b.run()
@@ -58,7 +58,7 @@ func (b *Batcher[T]) run() {
 		case item := <-b.itemsCh:
 			b.batch = append(b.batch, item)
 			if len(b.batch) == 1 {
-				log.Println("BATCHER: TICK TOCK  ( ﾉ ﾟｰﾟ)ﾉ")
+				log.Println("BATCHER: TICK TOCK NIGGA  ( ﾉ ﾟｰﾟ)ﾉ")
 				ticker = time.NewTicker(b.interval)
 				tickerCh = ticker.C
 			}
@@ -78,9 +78,8 @@ func (b *Batcher[T]) run() {
 			}
 		case <-b.quit:
 			log.Println("BATCHER: QUITING THE BATCHER")
-			b.flush()
 			close(b.itemsCh)
-			close(b.quit)
+			b.flush()
 			close(b.outChan)
 			return
 		}
@@ -88,16 +87,24 @@ func (b *Batcher[T]) run() {
 }
 
 func (b *Batcher[T]) flush() {
-	batchToInsert := make([]T, len(b.batch))
-	log.Printf("BATCHER: LENGH OF BATCH IS: %d \n", len(b.batch))
-	copy(batchToInsert, b.batch)
-	b.batch = make([]T, 0, b.maxSize)
-
-	if len(batchToInsert) != 0 {
-		atomic.AddInt64(&b.flushCounter, 1)
-		log.Printf("BATCHER: FLUSH CALLED : %d \n", atomic.LoadInt64(&b.flushCounter))
+	if len(b.batch) == 0 {
+		return
 	}
-	b.outChan <- batchToInsert
+
+	batchToInsert := make([]T, len(b.batch))
+	copy(batchToInsert, b.batch)
+
+	b.batch = b.batch[:0]
+
+	atomic.AddInt64(&b.flushCounter, 1)
+	log.Printf("BATCHER: FLUSH CALLED : %d \n", atomic.LoadInt64(&b.flushCounter))
+
+	select {
+	case b.outChan <- batchToInsert:
+
+	default:
+		log.Println("BATCHER: OUT CHANNEL IS FULL, DROPPING BATCH ❌")
+	}
 }
 
 func (b *Batcher[T]) Close() {
