@@ -39,14 +39,14 @@ import "your_project/batcherV3"
 ### Constructor
 
 ```go
-b := NewBatcher[T](maxSize, interval)
+b := NewBatcher[T](maxSize, interval,maxChanSize)
 ```
 
-| Parameter | Type          | Description                                   |
-| --------- | ------------- | --------------------------------------------- |
-| maxSize   | int           | Maximum number of items per batch             |
-| interval  | time.Duration | Maximum time before an automatic flush occurs |
-
+| Parameter   | Type          | Description                                   |
+| ----------- | ------------- | --------------------------------------------- |
+| maxSize     | int           | Maximum number of items per batch             |
+| interval    | time.Duration | Maximum time before an automatic flush occurs |
+| maxChanSize | int           | Maximum input and output channel size         |
 ---
 
 ### Add an Item
@@ -95,7 +95,7 @@ import (
 )
 
 func main() {
-	b := batcherV3.NewBatcher[int](3, 2*time.Second)
+	b := batcherV3.NewBatcher[int](3, 2*time.Second,10)
 
 	go func() {
 		for batch := range b.OutChan() {
